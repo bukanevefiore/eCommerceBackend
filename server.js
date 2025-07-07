@@ -1,0 +1,48 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import fs from "fs/promises";
+import { fetchGoldPriceUSDGram } from "./services/goldPriceService.js";
+
+dotenv.config();
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.use(cors());
+
+app.get("/products", async (req, res) => {
+    try {
+        const productData = await fs.readFile("./products.json", "utf-8");
+        const products = JSON.parse(productData);
+
+        const goldPrice = await fetchGoldPriceUSDGram();
+
+        const updatedData = products.map((p) => {
+            const price = (p.popularityScore +1) * p.weight * goldPrice;
+            return {
+                ...p,
+                price: Number(price.toFixed(2)),
+                currency: "USD",
+                popularityOutValue: Number((p.popularityScore * 5).toFixed(1)),
+            };
+        });
+
+        console.log("DATA: ", updatedData);
+
+        res.json({
+            succes: true,
+            timestamp: new Date().toISOString(),
+            data: updatedData,
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ succes: false, message: "Internal error" });
+
+    }
+
+});
+
+app.listen(PORT, () => {
+    console.log(`Backend Api Running at http://localhost:${PORT}/products`);
+});
