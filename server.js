@@ -17,7 +17,7 @@ app.get("/products", async (req, res) => {
 
         const goldPrice = await fetchGoldPriceUSDGram();
 
-        const updatedData = products.map((p) => {
+        let updatedData = products.map((p) => {
             const price = (p.popularityScore +1) * p.weight * goldPrice;
             return {
                 ...p,
@@ -29,6 +29,23 @@ app.get("/products", async (req, res) => {
 
         console.log("DATA: ", updatedData);
 
+            // QUERY FILTERS
+        const minPrice = Number(req.query.minPrice) || 0;
+        const maxPrice = Number(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
+        const minPopularity = Number(req.query.minPopularity) || 0;
+        const maxPopularity = Number(req.query.maxPopularity) || 5;
+
+        updatedData = updatedData.filter((p) => {
+          return (
+            p.price >= minPrice &&
+            p.price <= maxPrice &&
+            p.popularityOutOf5 >= minPopularity &&
+            p.popularityOutOf5 <= maxPopularity
+          );
+        });
+        console.log(">> updatedData Products with Filter:", updatedData);
+
+    
         res.json({
             succes: true,
             timestamp: new Date().toISOString(),
