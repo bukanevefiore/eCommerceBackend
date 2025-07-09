@@ -30,10 +30,10 @@ app.get("/products", async (req, res) => {
         console.log("DATA: ", updatedData);
 
             // FILTERS
-        const minPrice = Number(req.query.minPrice) || 0;
-        const maxPrice = Number(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
-        const minPopularity = Number(req.query.minPopularity) || 0;
-        const maxPopularity = Number(req.query.maxPopularity) || 5;
+        const minPrice = parseFloat(req.query.minPrice) || 0;
+        const maxPrice = parseFloat(req.query.maxPrice) || Number.MAX_SAFE_INTEGER;
+        const minPopularity = parseFloat(req.query.minPopularity) || 0;
+        const maxPopularity = parseFloat(req.query.maxPopularity) || 5;
 
          updatedData = updatedData.filter((p) => {
           return (
@@ -54,7 +54,7 @@ app.get("/products", async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ succes: false, message: "Internal error" });
+        res.status(500).json({ succes: false, message: "Internal error" +error.toISOString });
 
     }
 
